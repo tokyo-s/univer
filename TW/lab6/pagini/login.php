@@ -1,6 +1,6 @@
 <?php 
 
-require "validateData.php";
+require "validate.php";
 
 session_start();
 $eroare = False;

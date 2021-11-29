@@ -1,5 +1,5 @@
 <?php
-require "validateData.php";
+require "validate.php";
 
 $eroare = False;
 if (isset($_POST["Username_"])) {
