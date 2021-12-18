@@ -1,9 +1,34 @@
+<?php 
+
+require "validate.php";
+
+session_start();
+$eroare = False;
+if (isset($_POST["Username"])) {
+    $username    = mysqli_real_escape_string($con, $_POST["Username"]);
+    $password = mysqli_real_escape_string($con, $_POST["Password"]);
+    test_username($username,false);
+    test_password($password, false);
+
+    if (count($GLOBALS["errors"]) > 0) $eroare = True;
+    if (!$eroare) {
+        if (!decrypt($username, $password)) $eroare = True;
+    }
+
+    if (!$eroare){
+      $_SESSION['UserData']['Username'] = $password;
+      header("location:../index.php"); 
+      exit;
+    }
+}
+
+?>
+
 
 <!DOCTYPE html>
 <html>
 <head>
 <link rel="stylesheet" href="../css/login.css">
-<script src="https://code.jquery.com/jquery-3.5.1.js" type="text/javascript"  integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="   crossorigin="anonymous"></script>
 
 </head>
 <body>
@@ -23,74 +48,28 @@
     </tr>
     <tr>
       <td align="right" >Username</td>
-      <td><input name="Username" id = "username" type="text" class="fadeIn second"></td>
+      <td><input name="Username" type="text" class="fadeIn second"></td>
     </tr>
     <tr>
       <td align="right">Password</td>
-      <td><input name="Password" id = "password" type="password" class="fadeIn third"></td>
+      <td><input name="Password" type="password" class="fadeIn third"></td>
     </tr>
 
 
     <tr>
       <td></td>
-      <td><p id = "err"></p></td>
+      <td><?php if(!empty($GLOBALS["errors"]))
+        {foreach($GLOBALS["errors"] as $error){
+            echo $error . "<br>";
+        }} ?></td>
     </tr>
     <tr>
       <td> </td>
-      <td><input name="Submit" type="submit" id ="submitbtn" value="Login" class="fadeIn fourth"></td>
+      <td><input name="Submit" type="submit" value="Login" class="fadeIn fourth"></td>
     </tr>
   </table>
 </form>
     </div>
     </div>
-
-    <script>
-      $(document).ready(function () {
-  
-  $('#submitbtn').click(function verif(e) {
-          console.log("lul?")
-
-        var username = $('#username').val();
-        var password = $('#password').val();
-        if (username.length!=0 && password.length!=0){
-          $.ajax({
-          type: 'POST',
-          url: "login_request.php",
-          data:{
-            username: username,
-            password: password
-          },
-          cache: false,
-          success: function (response) {
-            var response = JSON.parse(response);
-            if(response.statusCode == 200){
-
-              window.location.href = "../index.php";
-
-            } else{
-              $('#username').val('')
-              $('#password').val('')
-              $('#err').html("Wrong password or username")
-            }
-          },
-          error: function() {
-            $('$username').val('')
-            $('$password').val('')
-
-            alert("Something Wrong");
-          }
-      });
-        }
-        else{
-          $('#err').html("Fill the gaps")
-
-        }
-
-        
-      return false;
-    })
-});
-
-      </script>
     </body>
 </html>
