@@ -1,8 +1,10 @@
-<?php session_start(); /* Starts the session */
+<?php  /* Starts the session */
+session_start(); 
 if(!isset($_SESSION['UserData']['Username'])){
 header("location:pagini/login.php");  ## login
 exit;
 }
+
 ?>
 
 
@@ -10,6 +12,7 @@ exit;
 <!DOCTYPE html>
 <html>
     <head>
+        <script src="https://code.jquery.com/jquery-3.5.1.js"   integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="   crossorigin="anonymous"></script>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="css/des.css">
     </head>
@@ -25,8 +28,6 @@ exit;
 
     </ul>
 
-
-    <button class="tooltip" id = "btn1" data-title="Button to refresh page">Refresh</button>
 
     <h1><i>EVEREST</i></h1>
 
@@ -56,14 +57,17 @@ exit;
 
         <h1><i>Other Mountains</i></h1>
 
-        <div class = "mountains">K2</div>
-        <div class = "mountains">Kangchenjunga</div>
-        <div class = "mountains">Lhotse</div>
-        <div class = "mountains">Makalu</div>
-        <div class = "mountains">Cho Oyu</div>
-        <div class = "mountains">Dhaulagiri I</div>
+        <div class = "mountains" name = "K2">K2</div>
+        <div class = "mountains" name = "Kangchenjunga">Kangchenjunga</div>
+        <div class = "mountains" name = "Lhotse">Lhotse</div>
+        <div class = "mountains" name = "Makalu">Makalu</div>
+        <div class = "mountains" name = "Cho Oyu">Cho Oyu</div>
+        <div class = "mountains" name = "Dhaulagiri I">Dhaulagiri I</div>
 
-
+        <div id='info_mountains'>
+            <img id = "img1"/>
+            <div id = "div_m"></div>
+        </div>
 
         <div class = "links">
         <table>
@@ -86,16 +90,83 @@ exit;
             }
 
             x=document.getElementsByClassName("mountains");
-              for (i of x){
+            for (i of x){
                 i.onclick=function(){
                 for (i of x)
                 i.style["background-color"]="#56baed";
-                this.style["background-color"]="#fbf2e9"; };
+                this.style["background-color"]="#fbf2e9"; 
+                mountain_name = $(this).attr('name')
+
+                $.ajax({  //get
+                type: 'get',
+                url: `http://localhost:8001/images/${mountain_name}.jpg`,
+                xhrFields: {
+                    responseType: "blob",
+                },
+                success: function (blobData) {
+                    const objectURL = URL.createObjectURL(blobData);
+                    $('#img1').attr('src', objectURL);
+                    $('#img1').css({"width":"650px","height":"400px"});
+                    $('#info_mountains').css({"width":"650px","height":"550px","margin":"auto"});
+                },
+                });
+
+
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        var allText = this.responseText;
+                        //$('#div_m').html(allText);
+                        $('#div_m').text(allText);
+
+                        //$('.links').css({"margin-top":"100px"});
+
+                        console.log(allText)
+                    }
+                };
+                xhttp.open("GET", `http://localhost:8001/texts/${mountain_name}.txt`, true);
+                xhttp.send();
+
+            };
             }
 
-            btn1.onmousedown = function(){
-                location.reload();
-            }
+            function toDataURL(url, callback) {
+                var xhr = new XMLHttpRequest();
+                xhr.onload = function() {
+                    var reader = new FileReader();
+                    reader.onloadend = function() {
+                    callback(reader.result);
+                    }
+                    reader.readAsDataURL(xhr.response);
+                };
+                xhr.open('GET', url);
+                xhr.responseType = 'blob';
+                xhr.send();
+                }
+
+        //     function encode64(inputStr){
+        //     var b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+        //     var outputStr = "";
+        //     var i = 0;
+            
+        //     while (i> 2){
+        //         var enc2 = ((byte1 & 3) << 4) | (byte2 >> 4);
+                
+        //         var enc3, enc4;
+        //         if (isNaN(byte2)){
+        //             enc3 = enc4 = 64;
+        //         } else{
+        //             enc3 = ((byte2 & 15) << 2) | (byte3 >> 6);
+        //             if (isNaN(byte3)){
+        //             enc4 = 64;
+        //             } else {
+        //                 enc4 = byte3 & 63;
+        //             }
+        //         }
+        //         outputStr +=  b64.charAt(enc1) + b64.charAt(enc2) + b64.charAt(enc3) + b64.charAt(enc4);
+        //     } 
+        //     return outputStr;
+        // }
         </script>
 </body>
 </html>
